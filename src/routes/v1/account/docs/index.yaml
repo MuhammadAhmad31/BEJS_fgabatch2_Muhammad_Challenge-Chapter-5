@@ -1,0 +1,281 @@
+tags:
+  - name: Accounts
+    description: Account management
+
+paths:
+  /accounts:
+    get:
+      tags:
+        - Accounts
+      summary: Retrieve a list of accounts with pagination
+      description: Fetch a paginated list of accounts from the database. You can specify the page number and the number of accounts per page.
+      parameters:
+        - name: page
+          in: query
+          description: Page number to retrieve (for pagination)
+          required: false
+          schema:
+            type: integer
+            example: 1
+        - name: limit
+          in: query
+          description: Number of accounts to retrieve per page
+          required: false
+          schema:
+            type: integer
+            example: 10
+      responses:
+        200:
+          description: A list of accounts successfully retrieved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Accounts retrieved successfully"
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                          format: uuid
+                        userId:
+                          type: string
+                          format: uuid
+                        bankName:
+                          type: string
+                        bankAccountNumber:
+                          type: string
+                        balance:
+                          type: number
+                          format: float
+        500:
+          description: Server error occurred while retrieving accounts
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Failed to retrieve accounts"
+                  error:
+                    type: string
+                    example: "Unknown error"
+
+  /account:
+    post:
+      tags:
+        - Accounts
+      summary: Create a new account
+      description: Add a new account to the database using the provided details. All fields must be filled out.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                userId:
+                  type: string
+                  format: uuid
+                  example: "123e4567-e89b-12d3-a456-426614174000"
+                bankName:
+                  type: string
+                  example: "Bank A"
+                bankAccountNumber:
+                  type: string
+                  example: "1234567890"
+                balance:
+                  type: number
+                  format: float
+                  example: 1000.00
+      responses:
+        201:
+          description: Account successfully created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Account added successfully"
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        format: uuid
+                      userId:
+                        type: string
+                        format: uuid
+                      bankName:
+                        type: string
+                      bankAccountNumber:
+                        type: string
+                      balance:
+                        type: number
+                        format: float
+        400:
+          description: Bad request due to missing or invalid data
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Failed to add account, all fields are required."
+                  error:
+                    type: string
+                    example: "Missing required fields: userId, bankName, bankAccountNumber, balance"
+        500:
+          description: Server error occurred while creating the account
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Failed to add account"
+                  error:
+                    type: string
+                    example: "Unknown error"
+
+  /account/{accountId}:
+    get:
+      tags:
+        - Accounts
+      summary: Retrieve an account by ID
+      description: Fetch detailed information about a specific account identified by its ID.
+      parameters:
+        - name: accountId
+          in: path
+          description: ID of the account to retrieve
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        200:
+          description: Account details successfully retrieved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Account retrieved successfully"
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        format: uuid
+                      userId:
+                        type: string
+                        format: uuid
+                      bankName:
+                        type: string
+                      bankAccountNumber:
+                        type: string
+                      balance:
+                        type: number
+                        format: float
+        404:
+          description: Account not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Account not found"
+        500:
+          description: Server error occurred while retrieving the account
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Failed to retrieve account"
+                  error:
+                    type: string
+                    example: "Unknown error"
+
+  /account/user/{userId}:
+    get:
+      tags:
+        - Accounts
+      summary: Retrieve accounts by user ID
+      description: Fetch all accounts associated with a specific user identified by their user ID.
+      parameters:
+        - name: userId
+          in: path
+          description: ID of the user to retrieve accounts for
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        200:
+          description: Accounts associated with the user successfully retrieved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Accounts retrieved successfully"
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                          format: uuid
+                        userId:
+                          type: string
+                          format: uuid
+                        bankName:
+                          type: string
+                        bankAccountNumber:
+                          type: string
+                        balance:
+                          type: number
+                          format: float
+        404:
+          description: Accounts not found for the specified user
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Accounts not found"
+        500:
+          description: Server error occurred while retrieving the accounts
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Failed to retrieve accounts"
+                  error:
+                    type: string
+                    example: "Unknown error"

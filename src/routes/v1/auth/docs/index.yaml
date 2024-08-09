@@ -1,0 +1,100 @@
+tags:
+  - name: Authentication
+    description: User authentication
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    ErrorResponse:
+      type: object
+      properties:
+        message:
+          type: string
+        error:
+          type: string
+    SuccessResponse:
+      type: object
+      properties:
+        message:
+          type: string
+        data:
+          type: object
+
+paths:
+  /login:
+    post:
+      tags:
+        - Authentication
+      summary: User login
+      description: Authenticate a user by email and password, and return a JWT token if successful.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: "user@example.com"
+                password:
+                  type: string
+                  format: password
+                  example: "yourpassword"
+      responses:
+        200:
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      token:
+                        type: string
+                        example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflK9tRikLGGEO4zRTn8Nhhz0JWBl-5mMox7fqRA8DA"
+        400:
+          description: Bad request due to missing email or password
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+                properties:
+                  message:
+                    example: "Email and password are required"
+        401:
+          description: Unauthorized due to invalid password
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+                properties:
+                  message:
+                    example: "Invalid password"
+        404:
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+                properties:
+                  message:
+                    example: "User not found"
+        500:
+          description: Server error occurred while processing the login request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+                properties:
+                  message:
+                    example: "Login failed"
+                  error:
+                    example: "Unknown error"

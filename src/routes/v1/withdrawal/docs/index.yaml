@@ -1,0 +1,174 @@
+tags:
+  - name: Withdrawal
+    description: Endpoints for managing withdrawals
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    WithdrawalRequest:
+      type: object
+      required:
+        - accountId
+        - amount
+      properties:
+        accountId:
+          type: string
+          description: The ID of the account to withdraw from
+          example: "acc123456"
+        amount:
+          type: number
+          description: The amount to withdraw
+          example: 50.00
+    WithdrawalResponse:
+      type: object
+      properties:
+        message:
+          type: string
+        data:
+          type: object
+          properties:
+            id:
+              type: string
+              example: "wdl123456"
+            accountId:
+              type: string
+              example: "acc123456"
+            amount:
+              type: number
+              example: 50.00
+            createdAt:
+              type: string
+              format: date-time
+              example: "2024-07-31T10:00:00Z"
+      ErrorResponse:
+        type: object
+        properties:
+          message:
+            type: string
+          error:
+            type: string
+
+paths:
+  /withdrawal/:
+    post:
+      tags:
+        - Withdrawal
+      summary: Create a new withdrawal
+      description: Creates a new withdrawal for a given account. This endpoint requires authentication.
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WithdrawalRequest'
+      responses:
+        201:
+          description: Withdrawal successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WithdrawalResponse'
+        400:
+          description: Invalid request data or insufficient balance
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        403:
+          description: Unauthorized to withdraw from this account
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        404:
+          description: Account not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        500:
+          description: Withdrawal failed due to server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /withdrawal/{withdrawalId}:
+    get:
+      tags:
+        - Withdrawal
+      summary: Get withdrawal by ID
+      description: Retrieves a withdrawal by its ID. This endpoint requires authentication.
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: withdrawalId
+          in: path
+          required: true
+          description: The ID of the withdrawal to retrieve
+          schema:
+            type: string
+      responses:
+        200:
+          description: Withdrawal retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WithdrawalResponse'
+        404:
+          description: Withdrawal not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        500:
+          description: Server error while retrieving withdrawal
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /withdrawals/user/{userId}:
+    get:
+      tags:
+        - Withdrawal
+      summary: Get withdrawals by user ID
+      description: Retrieves all withdrawals made by a specific user. This endpoint requires authentication.
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          description: The ID of the user whose withdrawals to retrieve
+          schema:
+            type: string
+      responses:
+        200:
+          description: Withdrawals retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/WithdrawalResponse'
+        404:
+          description: No withdrawals found for this user
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        500:
+          description: Server error while retrieving withdrawals
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+         

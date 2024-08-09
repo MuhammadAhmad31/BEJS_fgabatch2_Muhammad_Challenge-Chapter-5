@@ -1,0 +1,200 @@
+tags:
+  - name: Transactions
+    description: Transaction management
+
+components:
+  schemas:
+    ErrorResponse:
+      type: object
+      properties:
+        message:
+          type: string
+        error:
+          type: string
+    SuccessResponse:
+      type: object
+      properties:
+        message:
+          type: string
+        data:
+          type: object
+
+paths:
+  /transactions:
+    get:
+      tags:
+        - Transactions
+      summary: Retrieve a list of transactions with pagination
+      description: Fetch a paginated list of transactions from the database. You can specify the page number and the number of transactions per page.
+      parameters:
+        - name: page
+          in: query
+          description: Page number to retrieve (for pagination)
+          required: false
+          schema:
+            type: integer
+            example: 1
+        - name: limit
+          in: query
+          description: Number of transactions to retrieve per page
+          required: false
+          schema:
+            type: integer
+            example: 10
+      responses:
+        200:
+          description: A list of transactions successfully retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: string
+                          format: uuid
+                        sourceAccountId:
+                          type: string
+                          format: uuid
+                        destinationAccountId:
+                          type: string
+                          format: uuid
+                        amount:
+                          type: number
+                          format: float
+                        createdAt:
+                          type: string
+                          format: date-time
+        500:
+          description: Server error occurred while retrieving transactions
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /transaction:
+    post:
+      tags:
+        - Transactions
+      summary: Create a new transaction
+      description: Add a new transaction to the database using the provided details. All fields must be filled out, and source and destination accounts must be different.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                sourceAccountId:
+                  type: string
+                  format: uuid
+                  example: "123e4567-e89b-12d3-a456-426614174000"
+                destinationAccountId:
+                  type: string
+                  format: uuid
+                  example: "123e4567-e89b-12d3-a456-426614174001"
+                amount:
+                  type: number
+                  format: float
+                  example: 500.00
+      responses:
+        201:
+          description: Transaction successfully created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        format: uuid
+                      sourceAccountId:
+                        type: string
+                        format: uuid
+                      destinationAccountId:
+                        type: string
+                        format: uuid
+                      amount:
+                        type: number
+                        format: float
+                      createdAt:
+                        type: string
+                        format: date-time
+        400:
+          description: Bad request due to missing or invalid data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        404:
+          description: Account not found or insufficient balance
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        500:
+          description: Server error occurred while creating the transaction
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /transaction/{transactionId}:
+    get:
+      tags:
+        - Transactions
+      summary: Retrieve a transaction by ID
+      description: Fetch detailed information about a specific transaction identified by its ID.
+      parameters:
+        - name: transactionId
+          in: path
+          description: ID of the transaction to retrieve
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        200:
+          description: Transaction details successfully retrieved
+          content:
+            application/json:
+              schema:
+                $ref: './common.yaml#/components/schemas/SuccessResponse'
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        format: uuid
+                      sourceAccountId:
+                        type: string
+                        format: uuid
+                      destinationAccountId:
+                        type: string
+                        format: uuid
+                      amount:
+                        type: number
+                        format: float
+                      createdAt:
+                        type: string
+                        format: date-time
+        404:
+          description: Transaction not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        500:
+          description: Server error occurred while retrieving the transaction
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
