@@ -22,7 +22,7 @@ const withdraw = async (req, res) => {
 
   if (!isValid) {
     return handleResponse(res, 400, {
-      message: "Failed to create deposit, invalid data type.",
+      message: "Failed to create withdrawal, invalid data type.",
       error: message,
     });
   }
@@ -94,7 +94,7 @@ const getByUserId = async (req, res) => {
       });
     } catch (err) {
       handleResponse(res, 500, {
-        message: "Failed to retrieve deposits",
+        message: "Failed to retrieve withdrawal",
         error: err.message,
       });
     }
